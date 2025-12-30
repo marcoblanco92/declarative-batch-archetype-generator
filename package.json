@@ -1,0 +1,28 @@
+{
+  "name": "declarative-batch-archetype-generator",
+  "version": "1.0.0",
+  "description": "Node.js service to generate Maven archetype projects with YAML and ZIP, optionally pushing to Git",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcoblanco92/declarative-batch-archetype-generator.git"
+  },
+  "keywords": [],
+  "author": "Marco Blanco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marcoblanco92/declarative-batch-archetype-generator/issues"
+  },
+  "homepage": "https://github.com/marcoblanco92/declarative-batch-archetype-generator#readme",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "express": "^5.2.1",
+    "js-yaml": "^4.1.1",
+    "simple-git": "^3.30.0"
+  }
+}
