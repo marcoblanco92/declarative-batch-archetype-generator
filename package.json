@@ -21,6 +21,7 @@
   "homepage": "https://github.com/marcoblanco92/declarative-batch-archetype-generator#readme",
   "dependencies": {
     "archiver": "^7.0.1",
+    "cors": "^2.8.5",
     "express": "^5.2.1",
     "js-yaml": "^4.1.1",
     "simple-git": "^3.30.0"
