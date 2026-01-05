@@ -156,16 +156,6 @@ All'interno del ZIP:
 
 ---
 
-## 🔮 Estensioni future
-
-* Supporto a **Chunk-oriented Step**
-* Validazione schema JSON/YAML
-* Generazione **Job Flow** complessi
-* Supporto a **listener**, **retry**, **skip policy**
-* UI Frontend dedicata
-
----
-
 ## 📄 Licenza
 
 © 2026 – Tutti i diritti riservati.
