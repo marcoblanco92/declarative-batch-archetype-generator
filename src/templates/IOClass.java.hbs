@@ -1,0 +1,17 @@
+package {{package}}.dto;
+
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+public class {{className}} {
+{{#each fields}}
+    private {{type}} {{name}};
+{{/each}}
+}

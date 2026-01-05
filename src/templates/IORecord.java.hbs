@@ -1,0 +1,11 @@
+package {{package}}.dto;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public record {{className}}(
+{{#each fields}}
+    {{type}} {{name}}{{#unless @last}},{{/unless}}
+{{/each}}
+) {}
+
