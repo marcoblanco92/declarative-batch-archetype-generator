@@ -6,7 +6,7 @@ const { generateProjectZip } = require("./src/services/mavenService");
 const app = express();
 app.use(express.json());
 
-// Abilita CORS per il FE
+// Enable CORS for the frontend
 app.use(cors({ origin: "http://localhost:5173" }));
 
 /**
@@ -26,12 +26,14 @@ app.post("/generate-zip", async (req, res) => {
     const { batch } = req.body;
     const { groupId, artifactId, pkg, version, steps, generatedYaml } = batch;
 
-    console.log("Steps ricevuti:", steps);
+    console.log("Received steps:", steps);
 
+    // Validate required fields
     if (!groupId || !artifactId || !pkg || !version || !steps) {
       return res.status(400).send({ error: "Missing required fields" });
     }
 
+    // Generate ZIP file with the project
     const zipPath = await generateProjectZip({
       groupId,
       artifactId,
@@ -41,15 +43,16 @@ app.post("/generate-zip", async (req, res) => {
       generatedYaml,
     });
 
+    // Send the generated ZIP file as a response
     res.sendFile(path.resolve(zipPath));
-    console.log("resed path completed")
+    console.log("ZIP file sent successfully");
   } catch (err) {
     console.error(err);
     res.status(500).send({ error: "Error generating ZIP" });
   }
 });
 
-// Avvio server
+// Start server
 app.listen(3000, () => {
   console.log("Node.js server listening on http://localhost:3000");
 });
