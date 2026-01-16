@@ -114,6 +114,19 @@ async function generateProjectZip({
           ...step.output,
         }
       );
+
+      
+      if (step.reader?.type === "JdbcPagingItemReader" && step.reader?.mapperClass) {
+        const rowMapperTemplate =
+          step.input.recordType === "record" ? "RowMapperRecord.java.hbs" : "RowMapperClass.java.hbs";
+
+        generateFromTemplate(
+          rowMapperTemplate,
+          path.join(javaBasePath, "mapper", `${step.reader.mapperClass}.java`),
+          { package: pkg, input: step.input, reader: step.reader }
+        );
+      }
+
     }
 
     // Create the ZIP file containing the entire generated project

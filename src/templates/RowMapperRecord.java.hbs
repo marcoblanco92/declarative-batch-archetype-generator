@@ -1,0 +1,21 @@
+package {{package}}.mapper;
+
+import {{package}}.dto.{{input.className}};
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+@Component
+public class {{reader.mapperClass}} implements RowMapper<{{input.className}}> {
+
+    @Override
+    public {{input.className}} mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new {{input.className}}(
+            {{#each input.fields}}
+            rs.get{{capitalizeJdbcType type}}("{{name}}"){{#unless @last}}, {{/unless}}
+            {{/each}}
+        );
+    }
+}
