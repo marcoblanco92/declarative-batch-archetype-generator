@@ -97,7 +97,7 @@ async function generateProjectZip({
 
       // Generate Input record class
       generateFromTemplate(
-        "IORecord.java.hbs",
+        step.input.recordType === "record" ? "IORecord.java.hbs" : "IOClass.java.hbs",
         path.join(javaBasePath, "dto", `${step.input.className}.java`),
         {
           package: pkg,
@@ -107,7 +107,7 @@ async function generateProjectZip({
 
       // Generate Output record class
       generateFromTemplate(
-        "IORecord.java.hbs",
+        step.output.recordType === "record" ? "IORecord.java.hbs" : "IOClass.java.hbs",
         path.join(javaBasePath, "dto", `${step.output.className}.java`),
         {
           package: pkg,
