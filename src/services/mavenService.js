@@ -116,13 +116,13 @@ async function generateProjectZip({
       );
 
       
-      if (step.reader?.type === "JdbcPagingItemReader" && step.reader?.mapperClass) {
+      if (step.reader?.type === "JdbcPagingItemReader" && step.reader?.rowMapperClass) {
         const rowMapperTemplate =
           step.input.recordType === "record" ? "RowMapperRecord.java.hbs" : "RowMapperClass.java.hbs";
 
         generateFromTemplate(
           rowMapperTemplate,
-          path.join(javaBasePath, "mapper", `${step.reader.mapperClass}.java`),
+          path.join(javaBasePath, "mapper", `${step.reader.rowMapperClass}.java`),
           { package: pkg, input: step.input, reader: step.reader }
         );
       }
