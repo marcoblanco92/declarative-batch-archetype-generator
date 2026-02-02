@@ -1,0 +1,53 @@
+package {{package}}.mapper;
+
+import org.mapstruct.*;
+import {{package}}.dto.{{input.className}};
+import {{package}}.dto.{{output.className}};
+{{#if hasDateMapping}}
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+{{/if}}
+{{#if hasCustomMethods}}
+import java.util.List;
+{{/if}}
+
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL
+)
+public interface {{name}} {
+    
+    {{#each mappings}}
+    {{#if this.ignore}}
+    @Mapping(target = "{{this.target}}", ignore = true)
+    {{else if this.constant}}
+    @Mapping(target = "{{this.target}}", constant = "{{this.constant}}")
+    {{else if this.expression}}
+    @Mapping(target = "{{this.target}}", expression = "java({{this.expression}})")
+    {{else if this.qualifiedByName}}
+    @Mapping(source = "{{this.source}}", target = "{{this.target}}", qualifiedByName = "{{this.qualifiedByName}}")
+    {{else if this.dateFormat}}
+    @Mapping(source = "{{this.source}}", target = "{{this.target}}", dateFormat = "{{this.dateFormat}}")
+    {{else if this.source}}
+    @Mapping(source = "{{this.source}}", target = "{{this.target}}")
+    {{/if}}
+    {{/each}}
+    {{output.className}} map({{input.className}} input);
+    
+    {{#each customMethods}}
+    @Named("{{this.name}}")
+    default {{this.returnType}} {{this.name}}({{this.paramType}} value) {
+        {{#if this.body}}
+        {{{this.body}}}
+        {{else}}
+        // TODO: Implement custom method
+        return null;
+        {{/if}}
+    }
+    
+    {{!-- {{/each}}
+    {{#if enableBulkMapping}}
+    List<{{output.className}}> mapList(List<{{input.className}}> inputs);
+    {{/if}} --}}
+}

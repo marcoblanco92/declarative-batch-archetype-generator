@@ -10,7 +10,7 @@ const { generateFromTemplate } = require("../utils/templateUtils");
  * from templates, and packages everything into a ZIP file.
  *
  * @param {object} params - Project parameters
- * @param {string} params.gorupId - Maven groupId
+ * @param {string} params.groupId - Maven groupId
  * @param {string} params.artifactId - Maven artifactId
  * @param {string} params.pkg - Base package for Java classes
  * @param {string} params.version - Project version
@@ -92,7 +92,7 @@ async function generateProjectZip({
         }
       );
 
-      //Not generate any I/O classes if tasklet
+      // Not generate any I/O classes if tasklet
       if (step.type === "TASKLET") continue;
 
       // Generate Input record class
@@ -115,7 +115,7 @@ async function generateProjectZip({
         }
       );
 
-      
+      // Generate RowMapper if needed
       if (step.reader?.type === "JdbcPagingItemReader" && step.reader?.rowMapperClass) {
         const rowMapperTemplate =
           step.input.recordType === "record" ? "RowMapperRecord.java.hbs" : "RowMapperClass.java.hbs";
@@ -127,6 +127,19 @@ async function generateProjectZip({
         );
       }
 
+      // Generate MapStruct Mapper if processor is MapStructItemProcessor
+      if (step.processor?.type === "MapStructItemProcessor") {
+        const mapperData = prepareMapperData(step);
+        
+        generateFromTemplate(
+          "Mapper.java.hbs",
+          path.join(javaBasePath, "mapper", `${step.processor.name}.java`),
+          {
+            package: pkg,
+            ...mapperData,
+          }
+        );
+      }
     }
 
     // Create the ZIP file containing the entire generated project
@@ -137,6 +150,76 @@ async function generateProjectZip({
     // Cleanup the temporary generated project directory (keep the ZIP)
     cleanDirectory(generatedProjectDir);
   }
+}
+
+/**
+ * Prepares data for MapStruct mapper template
+ * 
+ * @param {object} step - Step configuration
+ * @returns {object} - Data for mapper template
+ */
+function prepareMapperData(step) {
+  const { processor, input, output } = step;
+  
+  // Detect if we need date imports
+  const hasDateMapping = processor.mappings?.some(
+    m => m.dateFormat || 
+         m.sourceType?.includes("LocalDate") || 
+         m.targetType?.includes("LocalDate") ||
+         m.sourceType?.includes("LocalDateTime") || 
+         m.targetType?.includes("LocalDateTime")
+  );
+
+  // Extract custom methods from qualifiedByName mappings
+  const customMethodNames = new Set();
+  processor.mappings?.forEach(m => {
+    if (m.qualifiedByName) {
+      customMethodNames.add(m.qualifiedByName);
+    }
+  });
+
+  // Generate custom methods based on the mapping requirements
+  const customMethods = Array.from(customMethodNames).map(methodName => {
+    // Find the first mapping that uses this method to get type info
+    const mapping = processor.mappings.find(m => m.qualifiedByName === methodName);
+    
+    return {
+      name: methodName,
+      returnType: mapping?.targetType || "String",
+      paramType: mapping?.sourceType || "String",
+      body: generateMethodBody(methodName, mapping),
+    };
+  });
+
+  return {
+    name: processor.name,
+    input,
+    output,
+    mappings: processor.mappings || [],
+    hasDateMapping,
+    hasCustomMethods: customMethods.length > 0,
+    customMethods,
+    enableBulkMapping: processor.enableBulkMapping !== null && processor.enableBulkMapping !== false, // Default true
+  };
+}
+
+/**
+ * Generates method body based on method name and mapping info
+ * 
+ * @param {string} methodName - Name of the method
+ * @param {object} mapping - Mapping configuration
+ * @returns {string} - Java method body
+ */
+function generateMethodBody(methodName, mapping) {
+  // Common transformation patterns
+  const transformations = {
+    toLowerCase: 'return value != null ? value.toLowerCase() : null;',
+    toUpperCase: 'return value != null ? value.toUpperCase() : null;',
+    trim: 'return value != null ? value.trim() : null;',
+    capitalize: 'return value != null && !value.isEmpty() ? value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase() : null;',
+  };
+
+  return transformations[methodName] || '// TODO: Implement custom transformation\nreturn value;';
 }
 
 module.exports = { generateProjectZip };
